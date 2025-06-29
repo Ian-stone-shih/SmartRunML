@@ -14,9 +14,9 @@ def train_model(X_train, y_train, X_test, y_test):
 
     model = SmartRunNN(input_size=X_train.shape[1])
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    optimizer = optim.Adam(model.parameters(), lr=0.5)
 
-    for epoch in range(400):
+    for epoch in range(1000):
         model.train()
         optimizer.zero_grad()
         predictions = model(X_train_t)
