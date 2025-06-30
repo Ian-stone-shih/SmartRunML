@@ -8,6 +8,7 @@ from meteostat import Hourly, Point
 from geopy.geocoders import Nominatim
 import time
 import requests
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -44,39 +45,12 @@ def convert_pace_to_seconds(pace_str):
     except:
         return None  # if invalid format
 
-
-def load_and_preprocess(path):
-    df = pd.read_csv(path)
-    # Convert Date to datetime
-    df["Date"] = pd.to_datetime(df["Date"])
-    # Fetch temperatures
-    temps = []
-    for _, row in df.iterrows():
-        city = row["Title"].split()[0]
-        lat, lon = geocode_city(city)
-        dt = row["Date"]
-        if lat is None:
-            temps.append(None)
-            continue
-        temp = get_temp_meteostat(lat, lon, dt)
-        temps.append(temp)
-        time.sleep(1)  # Avoid Meteostat rate limits
-
-    df["Temperature"] = temps
-
-    features = ["Distance", "Body Battery", "Sleep", "stress","Temperature", "Total Ascent", "Total Descent"]
+def analysis_data(df):
+    """Visualize the data distribution and correlations."""
+    features = ["Distance", "Body Battery", "Sleep", "stress", "Total Ascent", "Total Descent", 'Temperature']
     target = "Avg Pace"
     # Keep only the columns we need
     df = df[features + [target]]
-
-    #df["Steps"] = df["Steps"].astype(str).str.replace(",", "")
-    df["Avg Pace"] = df["Avg Pace"].apply(convert_pace_to_seconds)
-    
-    # Convert all columns to numeric, coercing errors to NaN
-    for col in df.columns:
-        df[col] = pd.to_numeric(df[col], errors="coerce")
-
-    df = df.dropna()
     # 1. Summary statistics
     print(df.describe())
 
@@ -96,9 +70,71 @@ def load_and_preprocess(path):
     plt.show()
     print(df.head())
 
+def synthetic_data(df_clean, features, num_samples):
+
+
+    synthetic_rows = []
+
+    for _ in range(num_samples):
+        # Randomly pick a row
+        base = df_clean.sample(1).iloc[0]
+
+        # Add small noise
+        row = base.copy()
+        for col in features[:-1]:
+            noise = np.random.normal(-0.05, 0.05)  # ~5% noise
+            row[col] = row[col] * (1 + noise)
+
+        # Optionally perturb Avg Pace proportionally to Sleep and Stress
+        pace_adjust = (row["Sleep"] - base["Sleep"]) * (-0.55) + (row["Temperature"] - base["Temperature"]) * (-0.43)
+        row["Avg Pace"] = base["Avg Pace"] + pace_adjust 
+
+        synthetic_rows.append(row)
+
+    # Combine into DataFrame
+    df_synth = pd.DataFrame(synthetic_rows)
+    df_combined = pd.concat([df_clean, df_synth], ignore_index=True)
+    
+    return df_combined
+
+
+def preprocess(df):
+    # Convert Date to datetime
+    df["Date"] = pd.to_datetime(df["Date"])
+    # Fetch temperatures
+    temps = []
+    for _, row in df.iterrows():
+        city = row["Title"].split()[0]
+        lat, lon = geocode_city(city)
+        dt = row["Date"]
+        if lat is None:
+            temps.append(None)
+            continue
+        temp = get_temp_meteostat(lat, lon, dt)
+        temps.append(temp)
+        time.sleep(1)  # Avoid Meteostat rate limits
+
+    df["Temperature"] = temps
+
+    features = ["Distance", "Body Battery", "Sleep", "stress", "Total Ascent", "Total Descent", 'Temperature']
+    target = "Avg Pace"
+    # Keep only the columns we need
+    df = df[features + [target]]
+
+    #df["Steps"] = df["Steps"].astype(str).str.replace(",", "")
+    df["Avg Pace"] = df["Avg Pace"].apply(convert_pace_to_seconds)
+    
+    # Convert all columns to numeric, coercing errors to NaN
+    for col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    df = df.dropna()  # Drop rows with NaN values
+    analysis_data(df)  # Perform analysis on the data
+    df_sys = synthetic_data(df, features, 100)  # Add synthetic data
+    analysis_data(df_sys)  # Perform analysis again after adding synthetic data
     # Split features and target
-    X = df[features].values
-    y = df[target].values
+    X = df_sys[features].values
+    y = df_sys[target].values
 
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
