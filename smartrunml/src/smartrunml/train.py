@@ -16,7 +16,7 @@ def train_model(X_train, y_train, X_test, y_test):
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.5)
 
-    for epoch in range(1000):
+    for epoch in range(500):
         model.train()
         optimizer.zero_grad()
         predictions = model(X_train_t)
