@@ -130,7 +130,7 @@ def preprocess(df):
 
     df = df.dropna()  # Drop rows with NaN values
     analysis_data(df)  # Perform analysis on the data
-    df_sys = synthetic_data(df, features, 100)  # Add synthetic data
+    df_sys = synthetic_data(df, features, 250)  # Add synthetic data
     analysis_data(df_sys)  # Perform analysis again after adding synthetic data
     # Split features and target
     X = df_sys[features].values
