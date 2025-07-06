@@ -56,7 +56,7 @@ def analysis_data(df):
 
     # 2. Correlation matrix
     corr = df.corr()
-    print("\nCorrelation matrix:\n", corr)
+    #print("\nCorrelation matrix:\n", corr)
 
     # 3. Heatmap of correlations
     plt.figure(figsize=(10,8))
