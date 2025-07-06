@@ -2,7 +2,6 @@ import requests
 import openrouteservice
 from openrouteservice import convert
 import folium
-import matplotlib.pyplot as plt
 from geopy.distance import geodesic
 
 def geocode_address(address):
@@ -23,7 +22,7 @@ def geocode_address(address):
         raise ValueError("Address not found")
 
 
-def route_plan(API_key, lon, lat):
+def route_plan(API_key, lon, lat, distance):
     # Initialize client
     client = openrouteservice.Client(
         key=API_key,
@@ -40,7 +39,7 @@ def route_plan(API_key, lon, lat):
         "format": "geojson",
         "options": {
             "round_trip": {
-                "length": 5000,  # meters
+                "length": distance*1000,  # meters
                 "seed": 2,  # random seed to get different variations
             }
         },
@@ -95,17 +94,7 @@ def elevation(coordinates):
         distances.append(distances[-1] + d)
 
 
-    # Plot
-    plt.figure(figsize=(8, 4))
-    plt.plot(distances, elevations, marker="o")
-    plt.xlabel("Distance along route (meters)")
-    plt.ylabel("Elevation (meters)")
-    plt.title("Elevation Profile")
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-
-    return elevations
+    return elevations, distances
 
 def des_asc(elevations):
     # Calculate total ascent and descent
