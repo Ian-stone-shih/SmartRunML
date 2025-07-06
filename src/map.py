@@ -69,7 +69,7 @@ def route_plan(API_key, lon, lat):
 
     m
 
-    return coordinates
+    return coordinates, m
 
 def elevation(coordinates):
     # Open-Elevation API expects lat/lon
