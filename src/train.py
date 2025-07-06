@@ -14,9 +14,9 @@ def train_model(X_train, y_train, X_test, y_test):
 
     model = SmartRunNN(input_size=X_train.shape[1])
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.5)
+    optimizer = optim.Adam(model.parameters(), lr=0.1)
 
-    for epoch in range(500):
+    for epoch in range(1000):
         model.train()
         optimizer.zero_grad()
         predictions = model(X_train_t)
@@ -29,7 +29,7 @@ def train_model(X_train, y_train, X_test, y_test):
     model.eval()
     with torch.no_grad():
         pred = model(X_test_t).numpy().flatten()
-        mse = mean_squared_error(y_test, pred)
-        r2 = r2_score(y_test, pred)
+        mse = mean_squared_error(y_test_t, pred)
+        r2 = r2_score(y_test_t, pred)
 
     return model, mse, r2
