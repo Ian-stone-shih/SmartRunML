@@ -52,23 +52,24 @@ def analysis_data(df):
     # Keep only the columns we need
     df = df[features + [target]]
     # 1. Summary statistics
-    print(df.describe())
+    #print(df.describe())
 
     # 2. Correlation matrix
     corr = df.corr()
     #print("\nCorrelation matrix:\n", corr)
+    #print(corr.loc["Avg Pace"])
 
     # 3. Heatmap of correlations
-    plt.figure(figsize=(10,8))
-    sns.heatmap(corr, annot=True, cmap="coolwarm")
-    plt.title("Feature Correlations")
-    plt.show()
+    #plt.figure(figsize=(10,8))
+    #sns.heatmap(corr, annot=True, cmap="coolwarm")
+    #plt.title("Feature Correlations")
+    #plt.show()
 
     # 4. Histograms
-    df.hist(bins=15, figsize=(15,10))
-    plt.tight_layout()
-    plt.show()
-    print(df.head())
+    #df.hist(bins=15, figsize=(15,10))
+    #plt.tight_layout()
+    #plt.show()
+    #print(df.head())
 
 def synthetic_data(df_clean, features, num_samples):
 
@@ -82,11 +83,11 @@ def synthetic_data(df_clean, features, num_samples):
         # Add small noise
         row = base.copy()
         for col in features[:-1]:
-            noise = np.random.normal(-0.05, 0.05)  # ~5% noise
+            noise = np.random.normal(-0.03, 0.03)  # ~5% noise
             row[col] = row[col] * (1 + noise)
 
         # Optionally perturb Avg Pace proportionally to Sleep and Stress
-        pace_adjust = (row["Sleep"] - base["Sleep"]) * (-0.55) + (row["Temperature"] - base["Temperature"]) * (-0.43)
+        pace_adjust = 0.5*((row["Sleep"] - base["Sleep"]) * (-0.55) + (row["Temperature"] - base["Temperature"]) * (-0.43))
         row["Avg Pace"] = base["Avg Pace"] + pace_adjust 
 
         synthetic_rows.append(row)

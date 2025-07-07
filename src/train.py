@@ -14,16 +14,16 @@ def train_model(X_train, y_train, X_test, y_test):
 
     model = SmartRunNN(input_size=X_train.shape[1])
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.1)
+    optimizer = optim.Adam(model.parameters(), lr=0.01)
 
-    for epoch in range(1000):
+    for epoch in range(2000):
         model.train()
         optimizer.zero_grad()
         predictions = model(X_train_t)
         loss = criterion(predictions, y_train_t)
         loss.backward()
         optimizer.step()
-        if (epoch + 1) % 50 == 0:
+        if (epoch + 1) % 100 == 0:
             print(f"Epoch {epoch+1}, Loss: {loss.item():.4f}")
 
     model.eval()
