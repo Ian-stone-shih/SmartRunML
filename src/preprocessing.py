@@ -47,7 +47,7 @@ def convert_pace_to_seconds(pace_str):
 
 def analysis_data(df):
     """Visualize the data distribution and correlations."""
-    features = ["Distance", "Body Battery", "Sleep", "stress", "Total Ascent", "Total Descent", 'Temperature']
+    features = ["Distance", "Body Battery", "Sleep", "stress", "Total Ascent", "Total Descent", "Temperature"]
     target = "Avg Pace"
     # Keep only the columns we need
     df = df[features + [target]]
@@ -87,7 +87,7 @@ def synthetic_data(df_clean, features, num_samples):
             row[col] = row[col] * (1 + noise)
 
         # Optionally perturb Avg Pace proportionally to Sleep and Stress
-        pace_adjust = 0.5*((row["Sleep"] - base["Sleep"]) * (-0.55) + (row["Temperature"] - base["Temperature"]) * (-0.43))
+        pace_adjust = (row["Sleep"] - base["Sleep"]) * (-0.55) + (row["Temperature"] - base["Temperature"]) * (-0.43)
         row["Avg Pace"] = base["Avg Pace"] + pace_adjust 
 
         synthetic_rows.append(row)
@@ -117,7 +117,7 @@ def preprocess(df):
 
     df["Temperature"] = temps
 
-    features = ["Distance", "Body Battery", "Sleep", "stress", "Total Ascent", "Total Descent", 'Temperature']
+    features = ["Distance", "Body Battery", "Sleep", "stress", "Total Ascent", "Total Descent", "Temperature"]
     target = "Avg Pace"
     # Keep only the columns we need
     df = df[features + [target]]
@@ -137,9 +137,15 @@ def preprocess(df):
     X = df_sys[features].values
     y = df_sys[target].values
 
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    joblib.dump(scaler, "scaler.save")
+    # Scale X
+    scaler_X = StandardScaler()
+    X_scaled = scaler_X.fit_transform(X)
 
-    return train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+    # Scale y
+    scaler_y = StandardScaler()
+    y_scaled = scaler_y.fit_transform(y.reshape(-1, 1)).ravel()
+    joblib.dump(scaler_X, "scaler_X.save")
+    joblib.dump(scaler_y, "scaler_y.save")
+
+    return train_test_split(X_scaled, y_scaled, test_size=0.2, random_state=42)
 
