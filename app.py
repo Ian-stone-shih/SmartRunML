@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 from src.map import route_plan
 from src.map import des_asc
 from src.preprocessing import get_temp_meteostat
+import joblib
+import torch
+import torch.nn as nn
 
 # --- Sidebar Inputs ---
 st.sidebar.title("Route Planner")
@@ -20,6 +23,7 @@ distance_km = st.sidebar.slider("Distance (km)", 1, 20, 5)
 geolocator = Nominatim(user_agent="smart_run_app")
 location = geolocator.geocode(address)
 start_coords = [location.longitude, location.latitude]
+
 # --- route_seed---
 # Initialize seed counter in session_state
 if "route_seed" not in st.session_state:
@@ -47,12 +51,66 @@ total_ascent, total_descent = des_asc(elevations)
 # --- Current Temperature ---
 Current_t = get_temp_meteostat(location.latitude, location.longitude, datetime.now())
 
-# --- Calculate Ascent and Descent ---
+# --- Sidebar Inputs ---
 with st.sidebar:
     st.metric("Total Ascent (m)", f"{total_ascent:.1f}")
     st.metric("Total Descent (m)", f"{total_descent:.1f}")
     st.metric("Current Temperature (°C)", f"{Current_t:.1f}")
 
+    # Group sliders in columns
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        body_battery = st.slider("Body Battery (%)", 0, 100, 75)
+    with col2:
+        sleep_hours = st.slider("Sleep Hours", 0, 12, 7)
+    with col3:
+        stress_level = st.slider("Stress Level (1-100)", 1, 100, 40)
+
+
+# --- Load Model ---
+class MySmartRunNN(nn.Module):
+    def __init__(self, input_size):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_size, 32),
+            nn.ReLU(),
+            nn.Linear(32, 16),
+            nn.ReLU(),
+            nn.Linear(16, 8),
+            nn.ReLU(),
+            nn.Linear(8, 2)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+input_features = [
+    distance_km,
+    body_battery,
+    sleep_hours * 60,  # Convert sleep hours to minutes
+    stress_level,
+    total_ascent,
+    total_descent,
+    Current_t
+]
+X_input = [input_features]
+scaler_X = joblib.load("src/scaler_X.save")
+scaler_y = joblib.load("src/scaler_y.save")
+
+X_new_scaled = scaler_X.transform(X_input)
+X_new_tensor = torch.tensor(X_new_scaled, dtype=torch.float32)
+
+model = MySmartRunNN(input_size=7)
+model.load_state_dict(torch.load("src/model.pt"))
+model.eval()
+# Predict
+with torch.no_grad():
+    y_pred = model(X_new_tensor).numpy()
+    predictions = scaler_y.inverse_transform(y_pred)
+
+pace = predictions[0][0]
+calories = predictions[0][1]
 
 # Plot
 # Plot elevation
@@ -62,3 +120,7 @@ ax.set_xlabel("Distance (m)")
 ax.set_ylabel("Elevation (m)")
 ax.set_title("Elevation Profile")
 st.pyplot(fig)
+
+st.subheader("Predicted Performance")
+st.write(f"Predicted Pace: **{pace:.2f} seconds/km**")
+st.write(f"Estimated Calories Burned: **{calories:.0f} kcal**")
