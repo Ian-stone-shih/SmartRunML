@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import mean_squared_error, r2_score
 from model import SmartRunNN
+import joblib
 
 def train_model(X_train, y_train, X_test, y_test):
     # Convert to PyTorch tensors
@@ -15,20 +16,23 @@ def train_model(X_train, y_train, X_test, y_test):
 
     model = SmartRunNN(input_size=X_train.shape[1])
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    model.train()
+    losses = []
 
-    for epoch in range(5):
+
+    for epoch in range(10):
         for i in range(0, len(X_train_t)):
 
-            model.train()
             optimizer.zero_grad()
             predictions = model(X_train_t[i])
             loss = criterion(predictions, y_train_t[i])
             loss.backward()
             optimizer.step()
 
-            if (i + 1) % 10 == 0:
+            if (i + 1) % 100 == 0:
                 print(f'Loss: {loss.item():.4f}')
+            losses.append(loss.item())
 
         with torch.no_grad():
             mse_loss = 0.0
@@ -44,4 +48,4 @@ def train_model(X_train, y_train, X_test, y_test):
         print(f'MSE: {MSE:.4f}')
     
 
-    return model, MSE
+    return model, MSE, losses
