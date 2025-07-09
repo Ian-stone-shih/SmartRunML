@@ -22,7 +22,7 @@ def geocode_address(address):
         raise ValueError("Address not found")
 
 
-def route_plan(API_key, lon, lat, distance):
+def route_plan(API_key, lon, lat, distance, seed=1):
     # Initialize client
     client = openrouteservice.Client(
         key=API_key,
@@ -40,7 +40,7 @@ def route_plan(API_key, lon, lat, distance):
         "options": {
             "round_trip": {
                 "length": distance*1000,  # meters
-                "seed": 2,  # random seed to get different variations
+                "seed": seed,  # random seed to get different variations
             }
         },
     }

@@ -20,13 +20,22 @@ distance_km = st.sidebar.slider("Distance (km)", 1, 20, 5)
 geolocator = Nominatim(user_agent="smart_run_app")
 location = geolocator.geocode(address)
 start_coords = [location.longitude, location.latitude]
+# --- route_seed---
+# Initialize seed counter in session_state
+if "route_seed" not in st.session_state:
+    st.session_state.route_seed = 1
+
+if st.sidebar.button("Generate New Route"):
+    st.session_state.route_seed += 1
+
+seed = st.session_state.route_seed
 
 # --- OpenRouteService API Key ---
 load_dotenv()  # load .env file
 ORS_API_KEY = os.environ["ORS_API_KEY"]
 
 # --- OpenRouteService ---
-coords, m = route_plan(ORS_API_KEY, location.longitude, location.latitude, distance_km)
+coords, m = route_plan(ORS_API_KEY, location.longitude, location.latitude, distance_km, seed)
 
 # Show map
 st_folium(m, width=700)
