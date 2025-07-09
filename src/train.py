@@ -9,9 +9,9 @@ import joblib
 def train_model(X_train, y_train, X_test, y_test):
     # Convert to PyTorch tensors
     X_train_t = torch.tensor(X_train, dtype=torch.float32)
-    y_train_t = torch.tensor(y_train, dtype=torch.float32).view(-1, 1)
+    y_train_t = torch.tensor(y_train, dtype=torch.float32)
     X_test_t = torch.tensor(X_test, dtype=torch.float32)
-    y_test_t = torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
+    y_test_t = torch.tensor(y_test, dtype=torch.float32)
     print(X_train_t.shape, y_train_t.shape, X_test_t.shape, y_test_t.shape)
 
     model = SmartRunNN(input_size=X_train.shape[1])

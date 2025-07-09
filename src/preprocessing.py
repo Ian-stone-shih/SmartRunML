@@ -48,9 +48,9 @@ def convert_pace_to_seconds(pace_str):
 def analysis_data(df):
     """Visualize the data distribution and correlations."""
     features = ["Distance", "Body Battery", "Sleep", "stress", "Total Ascent", "Total Descent", "Temperature"]
-    target = "Avg Pace"
+    target = ["Avg Pace", "Calories"]
     # Keep only the columns we need
-    df = df[features + [target]]
+    df = df[features + target]
     # 1. Summary statistics
     #print(df.describe())
 
@@ -60,10 +60,10 @@ def analysis_data(df):
     print(corr.loc["Avg Pace"])
 
     # 3. Heatmap of correlations
-    #plt.figure(figsize=(10,8))
-    #sns.heatmap(corr, annot=True, cmap="coolwarm")
-    #plt.title("Feature Correlations")
-    #plt.show()
+    plt.figure(figsize=(10,8))
+    sns.heatmap(corr, annot=True, cmap="coolwarm")
+    plt.title("Feature Correlations")
+    plt.show()
 
     # 4. Histograms
     #df.hist(bins=15, figsize=(15,10))
@@ -87,7 +87,7 @@ def synthetic_data(df_clean, features, num_samples):
             row[col] = row[col] * (1 + noise)
 
         # Optionally perturb Avg Pace proportionally to Sleep and Stress
-        pace_adjust = 0.5*(row["Sleep"] - base["Sleep"]) * (-0.55) + (row["Temperature"] - base["Temperature"]) * (-0.43)
+        pace_adjust = (row["Sleep"] - base["Sleep"]) * (-0.55) #+ (row["Temperature"] - base["Temperature"]) * (-0.43)
         row["Avg Pace"] = base["Avg Pace"] + pace_adjust 
 
         synthetic_rows.append(row)
@@ -118,9 +118,9 @@ def preprocess(df):
     df["Temperature"] = temps
 
     features = ["Distance", "Body Battery", "Sleep", "stress", "Total Ascent", "Total Descent", "Temperature"]
-    target = "Avg Pace"
+    target = ["Avg Pace", "Calories"]
     # Keep only the columns we need
-    df = df[features + [target]]
+    df = df[features + target]
 
     #df["Steps"] = df["Steps"].astype(str).str.replace(",", "")
     df["Avg Pace"] = df["Avg Pace"].apply(convert_pace_to_seconds)
@@ -143,7 +143,7 @@ def preprocess(df):
 
     # Scale y
     scaler_y = StandardScaler()
-    y_scaled = scaler_y.fit_transform(y.reshape(-1, 1)).ravel()
+    y_scaled = scaler_y.fit_transform(y)
     joblib.dump(scaler_X, "scaler_X.save")
     joblib.dump(scaler_y, "scaler_y.save")
 
