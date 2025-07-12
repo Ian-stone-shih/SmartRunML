@@ -2,7 +2,7 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import joblib
-from sklearn.model_selection import train_test_split
+
 import datetime
 from meteostat import Hourly, Point
 from geopy.geocoders import Nominatim
@@ -147,5 +147,5 @@ def preprocess(df):
     joblib.dump(scaler_X, "scaler_X.save")
     joblib.dump(scaler_y, "scaler_y.save")
 
-    return train_test_split(X_scaled, y_scaled, test_size=0.15, random_state=42)
+    return X_scaled, y_scaled
 
