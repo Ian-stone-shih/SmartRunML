@@ -87,7 +87,7 @@ def synthetic_data(df_clean, features, num_samples):
             row[col] = row[col] * (1 + noise)
 
         # Optionally perturb Avg Pace proportionally to Sleep and Stress
-        pace_adjust = (row["Sleep"] - base["Sleep"]) * (-0.55) #+ (row["Temperature"] - base["Temperature"]) * (-0.43)
+        pace_adjust = 0.5*(row["Sleep"] - base["Sleep"]) * (-0.55) + 0.5*(row["Temperature"] - base["Temperature"]) * (-0.43)
         row["Avg Pace"] = base["Avg Pace"] + pace_adjust 
 
         synthetic_rows.append(row)
@@ -131,7 +131,7 @@ def preprocess(df):
 
     df = df.dropna()  # Drop rows with NaN values
     analysis_data(df)  # Perform analysis on the data
-    df_sys = synthetic_data(df, features, 300)  # Add synthetic data
+    df_sys = synthetic_data(df, features, 500)  # Add synthetic data
     analysis_data(df_sys)  # Perform analysis again after adding synthetic data
     # Split features and target
     X = df_sys[features].values
