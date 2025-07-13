@@ -102,7 +102,7 @@ X_new_scaled = scaler_X.transform(X_input)
 X_new_tensor = torch.tensor(X_new_scaled, dtype=torch.float32)
 
 model = MySmartRunNN(input_size=7)
-model.load_state_dict(torch.load("src/model.pt"))
+model.load_state_dict(torch.load("model/final_model.pt"))
 model.eval()
 # Predict
 with torch.no_grad():

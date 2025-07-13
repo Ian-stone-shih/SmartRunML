@@ -45,24 +45,27 @@ def convert_pace_to_seconds(pace_str):
     except:
         return None  # if invalid format
 
-def analysis_data(df):
+def analysis_data(df, N):
     """Visualize the data distribution and correlations."""
     features = ["Distance", "Body Battery", "Sleep", "stress", "Total Ascent", "Total Descent", "Temperature"]
     target = ["Avg Pace", "Calories"]
     # Keep only the columns we need
     df = df[features + target]
     # 1. Summary statistics
-    #print(df.describe())
+    print(df.describe())
 
     # 2. Correlation matrix
     corr = df.corr()
     #print("\nCorrelation matrix:\n", corr)
-    print(corr.loc["Avg Pace"])
+    #print(corr.loc["Avg Pace"])
 
     # 3. Heatmap of correlations
     plt.figure(figsize=(10,8))
     sns.heatmap(corr, annot=True, cmap="coolwarm")
     plt.title("Feature Correlations")
+
+    # Save the figure BEFORE showing it
+    plt.savefig(f"analysis/feature_correlations_{N}.png", dpi=300, bbox_inches="tight")
     plt.show()
 
     # 4. Histograms
@@ -130,12 +133,12 @@ def preprocess(df):
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
     df = df.dropna()  # Drop rows with NaN values
-    analysis_data(df)  # Perform analysis on the data
-    df_sys = synthetic_data(df, features, 500)  # Add synthetic data
-    analysis_data(df_sys)  # Perform analysis again after adding synthetic data
+    analysis_data(df, 1)  # Perform analysis on the data
+    #df_sys = synthetic_data(df, features, 500)  # Add synthetic data
+    #analysis_data(df_sys, 2)  # Perform analysis again after adding synthetic data
     # Split features and target
-    X = df_sys[features].values
-    y = df_sys[target].values
+    X = df[features].values
+    y = df[target].values
 
     # Scale X
     scaler_X = StandardScaler()

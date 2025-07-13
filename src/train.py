@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import mean_squared_error, r2_score
-from model import SmartRunNN
+from src.model import SmartRunNN
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 import joblib
@@ -94,7 +94,7 @@ def train_model_kfold(X, y, k_folds):
         optimizer = optim.Adam(model.parameters(), lr=0.001)
 
         # Training
-        num_epochs = 10
+        num_epochs = 500
         for epoch in range(num_epochs):
             model.train()
             optimizer.zero_grad()
@@ -103,7 +103,7 @@ def train_model_kfold(X, y, k_folds):
             loss.backward()
             optimizer.step()
 
-            if (epoch + 1) % 5 == 0 or epoch == num_epochs - 1:
+            if (epoch + 1) % 100 == 0 or epoch == num_epochs - 1:
                 print(f"Epoch {epoch+1}/{num_epochs}, Train Loss: {loss.item():.4f}")
                 train_losses.append(loss.item())
 
@@ -117,7 +117,7 @@ def train_model_kfold(X, y, k_folds):
         fold_losses.append(val_loss.item())
 
         # Save model
-        model_path = f"smart_run_fold_{fold}.pt"
+        model_path = f"model/k_fold_{fold}.pt"
         torch.save(model.state_dict(), model_path)
         saved_model_paths.append(model_path)
         print(f"Saved model to {model_path}")
