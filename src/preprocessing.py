@@ -14,6 +14,10 @@ import seaborn as sns
 
 geolocator = Nominatim(user_agent="smart_runml")
 
+def format_pace(seconds_per_km):
+    minutes = int(seconds_per_km // 60)
+    seconds = int(round(seconds_per_km % 60))
+    return f"{minutes}:{seconds:02d}"
 
 # Function to get coordinates from city name
 def geocode_city(city_name):
@@ -85,13 +89,13 @@ def synthetic_data(df_clean, features, num_samples):
 
         # Add small noise
         row = base.copy()
-        for col in features[:-1]:
+        for col in features:
             noise = np.random.normal(-0.03, 0.03)  # ~5% noise
             row[col] = row[col] * (1 + noise)
 
         # Optionally perturb Avg Pace proportionally to Sleep and Stress
-        pace_adjust = 0.5*(row["Sleep"] - base["Sleep"]) * (-0.55) + 0.5*(row["Temperature"] - base["Temperature"]) * (-0.43)
-        row["Avg Pace"] = base["Avg Pace"] + pace_adjust 
+        #pace_adjust = 0.5*(row["Sleep"] - base["Sleep"]) * (-0.55) + 0.5*(row["Temperature"] - base["Temperature"]) * (-0.43)
+        #row["Avg Pace"] = base["Avg Pace"] + pace_adjust 
 
         synthetic_rows.append(row)
 
@@ -134,11 +138,11 @@ def preprocess(df):
 
     df = df.dropna()  # Drop rows with NaN values
     analysis_data(df, 1)  # Perform analysis on the data
-    #df_sys = synthetic_data(df, features, 500)  # Add synthetic data
+    df_sys = synthetic_data(df, features, 450)  # Add synthetic data
     #analysis_data(df_sys, 2)  # Perform analysis again after adding synthetic data
     # Split features and target
-    X = df[features].values
-    y = df[target].values
+    X = df_sys[features].values
+    y = df_sys[target].values
 
     # Scale X
     scaler_X = StandardScaler()
@@ -147,8 +151,8 @@ def preprocess(df):
     # Scale y
     scaler_y = StandardScaler()
     y_scaled = scaler_y.fit_transform(y)
-    joblib.dump(scaler_X, "scaler_X.save")
-    joblib.dump(scaler_y, "scaler_y.save")
+    joblib.dump(scaler_X, "src/scaler_X.save")
+    joblib.dump(scaler_y, "src/scaler_y.save")
 
     return X_scaled, y_scaled
 

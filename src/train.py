@@ -3,12 +3,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import mean_squared_error, r2_score
-from src.model import SmartRunNN
+from src.NN import SmartRunNN
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 import joblib
 
-def train_model(X_scaled, y_scaled):
+def train_model(X_scaled, y_scaled, optimizer_type, learning_rate):
     X_temp, X_test, y_temp, y_test = train_test_split(X_scaled, y_scaled, test_size=0.15, random_state=42)
     # Split train and validation (e.g., 15% of remaining as validation)
     print(X_temp.shape, X_test.shape, y_temp.shape, y_test.shape)
@@ -25,7 +25,15 @@ def train_model(X_scaled, y_scaled):
 
     model = SmartRunNN(input_size=X_train.shape[1])
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    # Choose optimizer based on input
+    if optimizer_type == "SGD":
+        optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+    elif optimizer_type == "ADAM":  
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    elif optimizer_type == "RMSprop":
+        optimizer = optim.RMSprop(model.parameters(), lr=learning_rate)
+    else:
+        raise ValueError("Unsupported optimizer type. Use 'SGD', 'ADAM', or 'RMSprop'.")
 
     train_losses = []
     val_losses = []
