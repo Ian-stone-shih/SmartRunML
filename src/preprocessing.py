@@ -106,7 +106,7 @@ def synthetic_data(df_clean, features, num_samples):
     return df_combined
 
 
-def preprocess(df):
+def preprocess(df, syn):
     # Convert Date to datetime
     df["Date"] = pd.to_datetime(df["Date"])
     # Fetch temperatures
@@ -138,7 +138,7 @@ def preprocess(df):
 
     df = df.dropna()  # Drop rows with NaN values
     analysis_data(df, 1)  # Perform analysis on the data
-    df_sys = synthetic_data(df, features, 450)  # Add synthetic data
+    df_sys = synthetic_data(df, features, syn)  # Add synthetic data
     #analysis_data(df_sys, 2)  # Perform analysis again after adding synthetic data
     # Split features and target
     X = df_sys[features].values

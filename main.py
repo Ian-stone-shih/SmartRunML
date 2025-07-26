@@ -8,12 +8,19 @@ import torch
 import joblib
 import matplotlib.pyplot as plt
 import time
+import yaml
 
 # 1. Load Data
-df = pd.read_csv("src/data/Activities-6.csv")
+with open("config.yaml", "r") as f:
+    config = yaml.safe_load(f)
+
+data_path = config["data_path"]
+df = pd.read_csv(data_path)
+
 
 # 2. Preprocess
-X_scaled, y_scaled = preprocess(df)
+synth_size = config["synthetic_data_size"]
+X_scaled, y_scaled = preprocess(df, synth_size)
 
 # 3. Train model
 # SGD

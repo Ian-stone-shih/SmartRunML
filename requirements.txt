@@ -9,3 +9,5 @@ seaborn==0.13.2
 setuptools==70.2.0
 geopy==2.4.1
 folium==0.20.0
+pytest==8.3.5
+PyYAML==6.0.2
