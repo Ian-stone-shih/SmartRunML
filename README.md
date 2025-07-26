@@ -1,6 +1,6 @@
 # SmartRunML
 
-**SmartRunML** is a Python package that predicts personalized running plans using **Garmin data**, **weather conditions**, and **route elevation**.  
+**SmartRunML** is a Python package that predicts personalized running plans using **Garmin data** and **weather conditions**.  
 It uses a neural network model to output **tailored running pace** and **estimated calories burned** based on user input.
 
 This project also includes a **Streamlit-based web app** for:
@@ -28,7 +28,7 @@ pip install -r requirements.txt
 
 ---
 
-### ⚙️ 2. Configure Your Dataset
+### 2. Configure Your Dataset
 
 Create or modify the provided `config.yaml` file in the root directory:
 
@@ -42,7 +42,7 @@ synthetic_data_size: 450                 # number of synthetic samples to genera
 
 ---
 
-### 🧠 3. Train Your Model
+### 3. Train Your Model
 
 Run the following script to preprocess the data, generate synthetic samples, and train the neural network:
 
@@ -57,9 +57,11 @@ This will:
 - Train using different optimizers
 - Save scalers and the trained model
 
+**Note**: Generate synthetic samples if you don't have enough data.
+
 ---
 
-### 🖥 4. Launch the Web App
+### 4. Launch the Web App
 
 After training, launch the Streamlit app with:
 
