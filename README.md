@@ -1,7 +1,7 @@
 # SmartRunML
 
 **SmartRunML** is a Python package that predicts personalized running plans using **Garmin data** and **weather conditions**.  
-It uses a neural network model to output **tailored running pace** and **estimated calories burned** based on user input.
+It uses a neural network model to output **running pace** and **calories burned** based on user input.
 
 This project also includes a **Streamlit-based web app** for:
 - Route map generation  
@@ -23,6 +23,14 @@ Clone the repository and install required packages:
 ```bash
 git clone https://github.com/Ian-stone-shih/smartrunml.git
 cd smartrunml
+
+# Create venv
+python -m venv venv
+# Activate on macOS/Linux
+source venv/bin/activate
+# Activate on Windows
+venv\Scripts\activate
+
 pip install -r requirements.txt
 ```
 
@@ -37,8 +45,7 @@ data_path: "src/data/Activities-6.csv"   # path to your CSV file
 synthetic_data_size: 450                 # number of synthetic samples to generate
 ```
 
-**Note**: In Garmin, features like `Body Battery`, `Sleep`, and `Stress` are stored separately from running activity data.  
-> Your CSV file must contain columns like: Distance, Sleep, Body Battery, Stress, Ascent, Descent, Temperature, Avg Pace, Calories. You are responsible for **manually merging these values** with your running dataset.  
+**Note**: In Garmin, features like `Body Battery`, `Sleep`, and `Stress` are stored separately from running activity data.You are responsible for **manually merging these values** with your running dataset.  
 
 ---
 
